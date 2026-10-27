@@ -1,93 +1,93 @@
-# [Programowanie Aplikacyjne] Projekt Grupy nr 9
+# [Application Programming] Group 9 Project
 
-## Skład zespołu
+## Team
 
-| Imię | Nazwisko | Nr indeksu | Uczelniany adres mailowy studenta |
+| First name | Last name | Student ID | University email address |
 | --- | --- | --- | --- |
 | Adam | Wasiak | 343076 | adam.wasiak2.stud@pw.edu.pl |
 | Andrzej | Buczma | 343004 | ??? |
 | Krystian | Kopeć | 337570 | ??? |
 | Oskar | Maj | 343033 | ??? |
 
-## Temat zadania projektowego
+## Project Topic
 
 ### Problem
 
-Początkujący twórcy, hobbyści i inżynierowie budujący prototypy IoT tracą godziny na dobieranie kompatybilnych podzespołów. Przeglądanie tysięcy kart katalogowych rodzi błędy decyzyjne: złe napięcia (spalony układ), brakujące rezystory czy niekompatybilne złącza. Z kolei w tradycyjnych sklepach brakuje doradztwa "pod projekt".
+Beginners, hobbyists, and engineers building IoT prototypes lose hours selecting compatible components. Browsing thousands of datasheets leads to decision-making errors: incorrect voltages (a burned circuit), missing resistors, or incompatible connectors. Traditional stores, on the other hand, lack project-specific guidance.
 
-### Rozwiązanie
+### Solution
 
-Aplikacja webowa, która na podstawie opisu (gotowego planu czy też planu uzyskanego w trakcie konwersacji) w języku naturalnym (np. "stacja meteo na baterie z powiadomieniem na telefon") projektuje architekturę sprzętową, weryfikuje kompatybilność fizyczną i buduje gotowy koszyk zakupowy (linki do zakupu poszczególnych komponentów).
+A web application that, based on a description in natural language (either a ready-made plan or one developed during a conversation, e.g. "a battery-powered weather station with phone notifications"), designs the hardware architecture, verifies physical compatibility, and creates a ready-to-use shopping cart (links for purchasing individual components).
 
-### Funkcjonalność
+### Functionality
 
-> Fragmenty oznaczone w ten sposób oznaczają część opcjonalną/wymagającą wyboru jednej bądź wielu opcji w dalszym planowaniu.
+> Fragments marked this way represent optional functionality or functionality requiring the selection of one or more options during further planning.
 
-- Chat połączony z modelem LLM, który po wybraniu docelowego dostawcy części:
-    - Dowiaduje się od użytkownika o celu projektu (otrzymuje gotowy opis/dochodzi do celu pytaniami)
-    - Planuje jakie kategorie komponentów i jakie ilości będą wymagane
-    - Dwie możliwości wysyłania zapytania do bazy danych o części (z filtrowaniem po dostępności i dostawcy):
-        > - wyszukiwanie wektorowe po embedding'ach do bazy danych dla poszczególnego poszukiwanego komponentu z filtrowaniem kategorii
-        > - zwracanie $x$ wyników z każdej niezbędnej kategorii do użycia i LLM samodzielnie wybiera z każdej dużej listy danej kategorii
-    - Deterministyczne zasady *ręcznie* dodane do bazy danych sprawdzają zasady inżynieryjne (poziomy napięć 3.3V vs 5V, bilans prądowy, magistrale I2C). Jeśli czujnik wymaga 5V, a mikrokontroler 3.3V - system automatycznie dokłada do koszyka konwerter napięć.
-    - Na podstawie zgromadzonych części przygotowywany jest koszyk zakupowy (lista linków) zapisywany w bazie
-    - Historia konwersacji jest zapisywana w bazie
-    - > Opcjonalnie można do projektu użytkownika wygenerować i zapisać: przykładowy schemat połączeń lub/i przykładowy kod do mikrokontrolerów
-- Użytkownik rejestruje i loguje się do prywatnego konta uzyskując dostęp do chat'a i historii projektów. Istnieje możliwość zmiany adresu e-mail oraz hasła.
-- Aplikacja przechowuje historię projektów, do których użytkownik poszukiwał części (konwersacja, znalezione linki zakupowe, inne wygenerowane elementy, jeśli istnieją)
-- W aplikacji może zachodzić wewnętrzna **migracja danych z API do bazy**, która polega na wysłaniu zapytania dla kilku kategorii o pewną liczbę produktów (istnieć może również możliwość wykonania migracji danych z pliku CSV), a następnie istnieją różne możliwości (niektóre uzależnione od wyboru sposobu wyszukiwania części):
-    > - każdy pojedynczy produkt zwrócony w odpowiedzi API trafia do LLM'a, który generuje jego opis produktu, a na podstawie tego opisu jest tworzony embedding. LLM może również dokonywać translacji wyników z API do wewnętrznego ustalonego formatu danych (np. po otrzymaniu w JSON pola *provider_shop_link_purchase* wstawi je do wewnętrznie zdefiniowanego pola *purchase_link* w bazie, taka funkcjonalność zapewnia niezależność od jednego API, bo umożliwia korzystanie z dowolnego formatu danych zwracanego przez API).
-    > - projekt jest uzależniony od jednego API o stałym formacie zwracanych danych, dane są deterministycznie wstawiane do odpowiednich pól w bazie bez przetwarzania LLM'em
-    > - projekt jest uzależniony od jednego API o stałym formacie zwracanych danych, dane są deterministycznie wstawiane do odpowiednich pól w bazie oraz jest generowanych opis LLM i embedding
-    Każdy produkt otrzymuje jeden rekord w bazie danych.
-- W aplikacji może zachodzić wewnętrzne **odświeżenie dostępności produktów**, polegające na wysłaniu jednego z poniższych do wyboru rodzajów zapytań i zaktualizowaniu jego statusu dostępności produktu:
-    > - dla każdego dostępnego produktu
-    > - tylko dla produktów z najmniejszą dostępną ilością (poniżej ustalonej wartości granicznej)
-- Konto administratora pozwalające na uruchomienie migracji danych z API do bazy, odświeżenia dostępności produktów oraz aktualizacji zasad inżynieryjnych
-- > Konto administratora pozwala sprawdzić ogólne statystyki:
-    > - Historię migracji danych z API do bazy - ich poszczególne daty, statusy oraz ilości zaindeksowanych produktów
-    > - Historię odświeżenia dostępności produktów - poszczególne daty, statusy oraz ilości zaktualizowanych produktów
-    > - Dotyczące ilości użytkowników oraz ilości/średniej liczby utworzonych przez nich konwersacji
+- A chat connected to an LLM that, after the target parts supplier is selected:
+    - Learns the project's goal from the user (receives a ready-made description or reaches the goal through questions)
+    - Plans which component categories and quantities will be required
+    - Supports two ways of querying the parts database (with availability and supplier filtering):
+        > - vector search using embeddings in the database for each requested component, with category filtering
+        > - returning $x$ results from each required category, allowing the LLM to choose from each large category list independently
+    - Deterministic rules *manually* added to the database verify engineering requirements (3.3V vs. 5V voltage levels, current balance, I2C buses). If a sensor requires 5V and the microcontroller uses 3.3V, the system automatically adds a voltage converter to the cart.
+    - A shopping cart (a list of links) is prepared from the collected parts and saved in the database
+    - The conversation history is saved in the database
+    - > Optionally, the user's project can include generated and saved sample wiring diagrams and/or sample microcontroller code
+- The user registers for and logs in to a private account, gaining access to the chat and project history. The user can change their email address and password.
+- The application stores the history of projects for which the user searched for parts (the conversation, found purchase links, and other generated elements, if any)
+- The application may perform an internal **migration of data from an API to the database**, which involves querying several categories for a specified number of products (migration from a CSV file may also be supported). Several approaches are possible (some dependent on the selected parts-search method):
+    > - each product returned by the API is sent to the LLM, which generates its product description; an embedding is then created from that description. The LLM can also translate API results into an established internal data format (e.g. after receiving the *provider_shop_link_purchase* field in JSON, it places it in the internally defined *purchase_link* field in the database; this makes the system independent of a single API because it supports any data format returned by an API).
+    > - the project depends on a single API with a fixed response format, and data is deterministically inserted into the appropriate database fields without LLM processing
+    > - the project depends on a single API with a fixed response format, and data is deterministically inserted into the appropriate database fields while an LLM description and embedding are also generated
+    Each product receives one record in the database.
+- The application may perform an internal **product availability refresh**, which involves sending one of the following selectable types of queries and updating the product's availability status:
+    > - for every available product
+    > - only for products with the lowest available quantity (below a specified threshold)
+- An administrator account allowing the user to run data migrations from the API to the database, refresh product availability, and update engineering rules
+- > The administrator account allows access to general statistics:
+    > - History of data migrations from the API to the database, including individual dates, statuses, and numbers of indexed products
+    > - History of product availability refreshes, including individual dates, statuses, and numbers of updated products
+    > - The number of users and the number/average number of conversations they have created
 
-### Architektura
+### Architecture
 
-Styl architektoniczny: SPA + REST API + Relacyjno-wektorowa baza danych
+Architectural style: SPA + REST API + Relational-vector database
 
-> Czy migracja danych z API do bazy lub odświeżenie dostępności produktów wymaga kolejki zadań i worker'ów je przetwarzających?
+> Does migrating data from the API to the database or refreshing product availability require a task queue and workers to process the tasks?
 
 #### Frontend
 
-Aplikacja webowa z podziałem na:
-- ekran logowania, rejestracji
-- dostęp zwykłego użytkownika:
+A web application divided into:
+- login and registration screens
+- regular user access:
     - chat
-    - historię konwersacji
-    - panel zarządzania kontem
-- panel administratora:
-    - uruchamianie migracji
-    - statystyki
-    - aktualizacja zasad inżynieryjnych
+    - conversation history
+    - account management panel
+- administrator panel:
+    - running migrations
+    - statistics
+    - updating engineering rules
 
 #### Backend
 
-REST API z podziałem na moduły:
-- konta użytkownika (logowanie, rejestracja, zmiana hasła/e-maila)
-- chat'u (konweracji z LLM)
-- historii konwersacji
-- migracji danych z API do bazy
-- dostępności produktów
-- > statystyk
+REST API divided into modules:
+- user accounts (login, registration, password/email changes)
+- chat (conversations with the LLM)
+- conversation history
+- data migration from the API to the database
+- product availability
+- > statistics
 
-### Technologie
+### Technologies
 
 - SPA: **React**
-- > Biblioteka komponentów do SPA: ???
+- > Component library for the SPA: ???
 - REST API: **Java** + framework: **Spring Boot**
-- Relacyjno-wektorowa baza danych: **PostgreSQL + pgvector**
-- API z danymi: **nexar.com**
-- Dostawca LLM: **OpenAI**
+- Relational-vector database: **PostgreSQL + pgvector**
+- Data API: **nexar.com**
+- LLM provider: **OpenAI**
 - ORM: **Hibernate**
-- > Logowanie i rejestracja: Keycloak/Clerk???
-- Konteneryzacja: **Docker, Docker Compose**
-- > Automatyzacja budowania API: Maven/Gradle???
-- Zapytania do dostawcy LLM: **Spring AI**
+- > Login and registration: Keycloak/Clerk???
+- Containerization: **Docker, Docker Compose**
+- > API build automation: Maven/Gradle???
+- Requests to the LLM provider: **Spring AI**
